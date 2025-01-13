@@ -1,10 +1,11 @@
 import sys
-import timeit
 import numpy as np
 from numba import njit, prange
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from utils import HDFStorage
+from tqdm import tqdm
 
 np.set_printoptions(threshold=sys.maxsize)
 
@@ -255,7 +256,7 @@ def calculate_SRs_full_nb(SRf, SRg, Qih, Qjh):#проверить конечно
             Q41 = Qih[3,i,j] * dQ1
             c = np.sqrt(gg1 * (Q41 - .5 * (Q21 * Q21 + Q31 * Q31)))
             SRf[i,j] = np.max(np.absolute(np.array([Q21, Q21 + c, Q21 - c])))
-                          
+                        
             dQ1 = 1. / Qjh[0,i,j]
             Q21 = Qjh[1,i,j] * dQ1 
             Q31 = Qjh[2,i,j] * dQ1
@@ -270,9 +271,9 @@ def calculate_tildas_full_nb(Ft, Gt, fQiR, fQiL, gQjR, gQjL, SRf, SRg, QiR, QiL,
     for i in prange(1,Nrm2):
         for j in prange(1,Nzm2):
             Ft[:,i,j] = .5 * (fQiR[:,i+1,j] + fQiL[:,i,j] - 
-                               SRf[i,j] * (QiR[:,i+1,j] - QiL[:,i,j])) 
+                            SRf[i,j] * (QiR[:,i+1,j] - QiL[:,i,j])) 
             Gt[:,i,j] = .5 * (gQjR[:,i,j+1] + gQjL[:,i,j] - 
-                               SRg[i,j] * (QjR[:,i,j+1] - QjL[:,i,j])) 
+                            SRg[i,j] * (QjR[:,i,j+1] - QjL[:,i,j])) 
     return Ft, Gt
 
 
@@ -319,8 +320,8 @@ def Courant_Friedrichs_Lewy_condition(dt, Q, SRf, SRg, Cr):
 def picture_test(arr):
     fig, ax = plt.subplots()
     im = ax.imshow(np.flipud(arr.T), cmap = cm.Greys,
-                   extent = [0.,3.,0.,7.],
-                   vmax = arr.max(), vmin = arr.min())
+                extent = [0.,3.,0.,7.],
+                vmax = arr.max(), vmin = arr.min())
     ax.set(xlabel = 'r', ylabel = 'z')
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="2%", pad=0.05)
@@ -330,32 +331,16 @@ def picture_test(arr):
     plt.close()
     return
 
-
-def continue_from_files(Q, rho, u, v, eint, time):
-    rho = np.load('de{:.4f}.npy'.format(time))
-    u = np.load('vr{:.4f}.npy'.format(time))
-    v = np.load('vz{:.4f}.npy'.format(time))
-    eint = np.load('ei{:.4f}.npy'.format(time))
-    Q = primitive_to_conservative_nb(Q, rho, u, v, eint, rz)
-    return Q, rho, u, v, eint, time
-
-
-#picture_test(rho)
-
-Q, rho, u, v, eint, t = continue_from_files(Q, rho, u, v, eint, t)
+hdf = HDFStorage('data\\data-1.hdf5', 'f8', 16)
+hdf.append(t = t, u = u, v = v, rho = rho, eint = eint)
+hdf.write(r = r, z = z)
+    
+Q = primitive_to_conservative_nb(Q, rho, u, v, eint, rz)
 
 if __name__ == '__main__':
-    np.savez('mesh', r=r, z=z)
     Q = primitive_to_conservative_nb(Q, rho, u, v, eint, rz)
-    for _ in range(1,Nt+1):
-        print('%.4f' % t)
-        if (counter % save_par == 0):
-            #picture_test(rho)
-            #picture_test(eint)
-            np.save('de'+'{:.4f}'.format(t), rho)
-            np.save('vr'+'{:.4f}'.format(t), u)
-            np.save('vz'+'{:.4f}'.format(t), v)
-            np.save('ei'+'{:.4f}'.format(t), eint)
+    for _ in tqdm(range(1,Nt+1), ascii = True, desc = 'progress'):
+        hdf.watch(t = t, u = u, v = v, rho = rho, eint = eint)
 
         dt = Courant_Friedrichs_Lewy_condition(dt, Q, SRf, SRg, Cr)
 
