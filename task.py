@@ -9,12 +9,12 @@ from tqdm import tqdm
 
 np.set_printoptions(threshold=sys.maxsize)
 
-Nt = np.int64(100000)
+Nt = np.int64(2e4)
 t = np.float64(0)
-dt = np.float64(.001)
+dt = np.float64(1e-3)
 Cr = np.float64(.5)
 counter = 0
-save_par = 16
+save_par = 100
 
 rlb, rrb = np.float64(0.), np.float64(3.) 
 zlb, zrb = np.float64(0.), np.float64(7.) 
@@ -333,9 +333,9 @@ def picture_test(arr):
 
 Z, R = np.meshgrid(z, r)
 
-hdf = HDFStorage('data-1.hdf5', 'f8', 16)
+hdf = HDFStorage('data\\data-1.hdf5', 'f8', save_par)
 hdf.append(t = t, u = u, v = v, rho = rho, eint = eint)
-hdf.write(r = R, z = Z, dr = dr, dz = dz)
+hdf.write(R = R, Z = Z, dr = dr, dz = dz, r = r, z = z, g = g, dt = dt)
     
 Q = primitive_to_conservative_nb(Q, rho, u, v, eint, rz)
 
