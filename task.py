@@ -9,8 +9,8 @@ from tqdm import tqdm
 
 np.set_printoptions(threshold=sys.maxsize)
 
-Nt = np.int64(3e4)
-t = np.float64(0)
+Nt = np.int64(3e4) # node counts
+t = np.float64(0) # initial time
 dt = np.float64(1e-3)
 Cr = np.float64(.5)
 counter = 0
@@ -24,6 +24,7 @@ dr, dz = np.float64(.005), np.float64(.005)
 drdz = dr * dz
 Crh = Cr * np.min([dr, dz])
 
+# gamma = np.true_divide(13., 10.)
 g, phi, chi = np.true_divide(13., 10.), np.float64(.009), np.float64(10.)
 
 #чтобы лишний раз не вычислять

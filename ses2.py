@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import scipy.ndimage as ndi
 from utils import HDFStorage
 #%% load data
-hdf = HDFStorage('data\\data-g13f10-n3e4.hdf5')
+hdf = HDFStorage('data\\data-g4f3-n3e4.hdf5')
 data = hdf.read()
 data['ent'] = np.log((data['g'] - 1.) * data['eint'] * np.power(data['rho'], 1. - data['g']))
 #%% clear plots
@@ -48,6 +48,13 @@ def plot(t, z, r, f, ta = [0, 8, 16, 32, 64], ra = [0, 0.2], xlim = [1.1, 4.5],
         if not folder is None:
             filename = os.path.join(folder, f'{i}'+extension)
             fig.savefig(filename, bbox_inches = 'tight', pad_inches = 0)
+#%% test
+ta = [3.5, 5.3, 7.1, 8.6, 9.3]
+ra = [0, 0.2, 0.3]
+
+# plot density
+plot(data['t'], data['Z'], data['R'], data['rho'], ta = ta, ra = ra, ylabel = r'$\rho$', 
+     title = title, folder = os.path.join(path, 'rho'))
 #%% swept plots
 # ta = [2.3, 3.5, 4.6, 5.8, 6.9, 8.1, 9.3, 10.4, 11.6, 12.8, 13.9, 15.1]
 # ta = [9.3, 10.4, 11.6, 12.8, 13.9, 15.1]

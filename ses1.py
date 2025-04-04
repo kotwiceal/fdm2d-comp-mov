@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import scipy.ndimage as ndi
 from utils import HDFStorage
 #%% load data
-hdf = HDFStorage('data\\data-g11f10-n3e4.hdf5')
+hdf = HDFStorage('data\\data-g4f3-n3e4.hdf5')
 data = hdf.read()
 data['range'] = np.arange(0,data['u'].shape[0],5)
 # process entrophy
@@ -44,11 +44,16 @@ os.makedirs(path)
 #%% define plot
 def pltfield(x, y, z, u = None, v = None, dn = [10, 10], clim = [0, 1], cmap = 'viridis', clabel = '', 
     scale = 0.5, filename = None, figsize = (8, 6), dpi = 150, pivot = 'mid', scale_units = 'xy', 
-    units = 'xy', arrowcolor = '0', title = '', norm = colors.Normalize, xlim = [0, 1], ylim = [1.5, 4]):
+    units = 'xy', arrowcolor = '0', title = '', norm = colors.Normalize, 
+    xlim = [0, 1], ylim = [1.5, 4], type = 'polymesh', levels = 50):
 
     norm = norm(vmin = clim[0], vmax = clim[1])
     fig, ax = plt.subplots(figsize = figsize, dpi = dpi)
-    pcm = ax.pcolormesh(x, y, z, cmap = cmap, norm = norm) 
+    match type:
+        case 'polymesh':
+            pcm = ax.pcolormesh(x, y, z, cmap = cmap, norm = norm) 
+        case 'contourf':
+            pcm = ax.contourf(x, y, z, levels, cmap = cmap, norm = norm) 
     if not u is None and not v is None:
         q = ax.quiver(x[::dn[0], ::dn[1]], y[::dn[0], ::dn[1]], u[::dn[0], ::dn[1]], v[::dn[0], ::dn[1]], 
             scale = scale, pivot = pivot, scale_units = scale_units, units = units, color = arrowcolor)
@@ -62,6 +67,14 @@ def pltfield(x, y, z, u = None, v = None, dn = [10, 10], clim = [0, 1], cmap = '
     if not filename is None:
         fig.savefig(filename, bbox_inches = 'tight', pad_inches = 0)
 titlehandle = lambda i: r't={:.1f}; $\gamma$={:.1f}'.format(data['t'][i], data['g'])
+#%% test contourf
+i = 50
+pltfield(data['R'], data['Z'], data['rho'][i], u = data['u'][i], v = data['v'][i],
+    cmap = cm.jet_r, clim = [data['rho'].min(), data['rho'].max()], clabel = r'$\rho$', 
+    filename = os.path.join(path, f'rho\\{i}.png'), 
+    title = titlehandle(i), type = 'contourf', levels = np.linspace(0.001,25,10))
+#%%
+
 #%% swept plots
 for i in data['range']:
     # plot density
