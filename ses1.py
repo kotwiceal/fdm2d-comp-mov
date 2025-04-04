@@ -7,7 +7,7 @@ import matplotlib.cm as cm
 import scipy.ndimage as ndi
 from utils import HDFStorage
 #%% load data
-hdf = HDFStorage('data\\data-g5f3-n3e4.hdf5')
+hdf = HDFStorage('data\\data-g11f10-n3e4.hdf5')
 data = hdf.read()
 data['range'] = np.arange(0,data['u'].shape[0],5)
 # process entrophy
@@ -32,7 +32,11 @@ def procqcrit(dudx, dudy, dvdx, dvdy):
 
 data['q'] = procqcrit(data['dudr'], data['dudz'], data['dvdr'], data['dvdz'])
 #%% clear plots
-path = 'data\\plots-g5f3-n3e4-crop2'
+path = 'data\\plots-g1f1-n3e4-crop'
+try:
+    os.makedirs(path)
+except:
+    pass
 folders = ['u', 'v', 'vmag', 'rho', 'eint', 'rot', 'q', 'ent']
 shutil.rmtree(path)
 os.makedirs(path)
@@ -40,7 +44,7 @@ os.makedirs(path)
 #%% define plot
 def pltfield(x, y, z, u = None, v = None, dn = [10, 10], clim = [0, 1], cmap = 'viridis', clabel = '', 
     scale = 0.5, filename = None, figsize = (8, 6), dpi = 150, pivot = 'mid', scale_units = 'xy', 
-    units = 'xy', arrowcolor = '0', title = '', norm = colors.Normalize, xlim = [0, 1], ylim = [1.5, 2.4]):
+    units = 'xy', arrowcolor = '0', title = '', norm = colors.Normalize, xlim = [0, 1], ylim = [1.5, 4]):
 
     norm = norm(vmin = clim[0], vmax = clim[1])
     fig, ax = plt.subplots(figsize = figsize, dpi = dpi)
@@ -57,7 +61,7 @@ def pltfield(x, y, z, u = None, v = None, dn = [10, 10], clim = [0, 1], cmap = '
     fig.colorbar(pcm, ax = ax, label = clabel)
     if not filename is None:
         fig.savefig(filename, bbox_inches = 'tight', pad_inches = 0)
-titlehandle = lambda i: r't={:.1f} \n $\gamma$={:.1f}'.format(data['t'][i], data['g'])
+titlehandle = lambda i: r't={:.1f}; $\gamma$={:.1f}'.format(data['t'][i], data['g'])
 #%% swept plots
 for i in data['range']:
     # plot density

@@ -7,11 +7,11 @@ import matplotlib.cm as cm
 import scipy.ndimage as ndi
 from utils import HDFStorage
 #%% load data
-hdf = HDFStorage('data\\data-g5f3-n3e4.hdf5')
+hdf = HDFStorage('data\\data-g13f10-n3e4.hdf5')
 data = hdf.read()
 data['ent'] = np.log((data['g'] - 1.) * data['eint'] * np.power(data['rho'], 1. - data['g']))
 #%% clear plots
-path = 'data\\plots-g5f3-n3e4-dist-1d'
+path = 'data\\plots-g13f10-n3e4-dist-1d-3'
 try:
     os.makedirs(path)
 except:
@@ -23,7 +23,7 @@ os.makedirs(path)
 #%% define plot function
 title = lambda r: r'r={:.1f}; $\gamma$={:.1f}'.format(r, data['g'])
 
-def plot(t, z, r, f, ta = [0, 8, 16, 32, 64], ra = [0, 0.2], 
+def plot(t, z, r, f, ta = [0, 8, 16, 32, 64], ra = [0, 0.2], xlim = [1.1, 4.5], 
     xlabel = 'z', ylabel = '', folder = None, figsize = (8, 6), dpi = 150, 
     title = lambda s: '', extension = '.png'):
 
@@ -37,6 +37,7 @@ def plot(t, z, r, f, ta = [0, 8, 16, 32, 64], ra = [0, 0.2],
     for i, ri in enumerate(rn):
         fig, ax = plt.subplots(figsize = figsize, dpi = dpi)
         [ax.plot(z[ri], f[ti][ri]) for ti in tn]
+        ax.set_xlim(xlim)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.grid()
@@ -48,7 +49,9 @@ def plot(t, z, r, f, ta = [0, 8, 16, 32, 64], ra = [0, 0.2],
             filename = os.path.join(folder, f'{i}'+extension)
             fig.savefig(filename, bbox_inches = 'tight', pad_inches = 0)
 #%% swept plots
-ta = [0, 8, 16, 32, 64]
+# ta = [2.3, 3.5, 4.6, 5.8, 6.9, 8.1, 9.3, 10.4, 11.6, 12.8, 13.9, 15.1]
+# ta = [9.3, 10.4, 11.6, 12.8, 13.9, 15.1]
+ta = [3.5, 5.3, 7.1, 8.6, 9.3]
 ra = [0, 0.2]
 
 # plot density

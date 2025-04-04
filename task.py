@@ -16,7 +16,7 @@ Cr = np.float64(.5)
 counter = 0
 save_par = 100
 
-hdf = HDFStorage('data\\data-g5f3-n3e4.hdf5', 'f8', save_par)
+hdf = HDFStorage('data\\data-g13f10-n3e4.hdf5', 'f8', save_par)
 
 rlb, rrb = np.float64(0.), np.float64(3.) 
 zlb, zrb = np.float64(0.), np.float64(7.) 
@@ -24,7 +24,7 @@ dr, dz = np.float64(.005), np.float64(.005)
 drdz = dr * dz
 Crh = Cr * np.min([dr, dz])
 
-g, phi, chi = np.true_divide(5., 3.), np.float64(.009), np.float64(10.)
+g, phi, chi = np.true_divide(13., 10.), np.float64(.009), np.float64(10.)
 
 #чтобы лишний раз не вычислять
 dchi = np.true_divide(1., chi)
