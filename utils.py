@@ -34,7 +34,7 @@ class HDFStorage:
                 fid[key].create_dataset(index, data = value, 
                     dtype = self.dtype)
 
-    def read(self, index: list = None):
+    def read(self, step: int = None):
         """Read all data."""
         data = dict()
         with h5py.File(self.path, 'r') as fid:
@@ -42,12 +42,12 @@ class HDFStorage:
                 if isinstance(fid[key], h5py.Dataset):
                     data[key] = value[()]
                 else:
-                    if index is None:
-                        n = len(fid[key])
+                    n = len(fid[key])
+                    if step is None:
                         index = np.arange(n)
                     else:
-                        n = index.size
-                    data[key] = np.zeros((n,) + value['1'].shape)
+                        index = np.arange(0, n, step)
+                    data[key] = np.zeros((index.shape[0],) + value['1'].shape)
                     for i, v in enumerate(index):
                         data[key][i] = value[str(v+1)][()]
         return data
