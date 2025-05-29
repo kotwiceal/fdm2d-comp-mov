@@ -5,9 +5,11 @@ import matplotlib.colors as colors
 import matplotlib.cm as cm
 from utils import HDFStorage, procqcrit, procvelgrad, plotmkdir, plot2d
 #%% load data
-hdf = HDFStorage('data\\data-g1.3-n3e4-phi0.05.hdf5')
-data = hdf.read(index=[0,1,2])
+hdf = HDFStorage('data\\data-g1.7-n3e4-phi0.05.hdf5')
+data = hdf.read(step=5)
 data['range'] = np.arange(0,data['u'].shape[0],5)
+#%% process Mach number
+data['M'] = np.hypot(data['u'], data['v'])/np.sqrt(data['eint']*data['g']*(data['g']-1))
 #%% process entrophy
 data['ent'] = np.log((data['g'] - 1.) * data['eint'] * np.power(data['rho'], 1. - data['g']))
 #%% process vorticity
@@ -15,7 +17,7 @@ data['dudr'], data['dudz'], data['dvdr'], data['dvdz'], data['rot'] = procvelgra
 #%% process Q-criteria
 data['q'] = procqcrit(data['dudr'], data['dudz'], data['dvdr'], data['dvdz'])
 #%% create plot storage folders & clear plots
-data['path'] = 'data\\plots-g1.3-n3e4-phi0.05'
+data['path'] = 'data\\plots-g1.7-n3e4-phi0.05'
 plotmkdir(data['path'])
 #%% define title handle
 titlehandle = lambda i: r't={:.1f}; $\gamma$={:.1f}'.format(data['t'][i], data['g'])
@@ -67,6 +69,12 @@ for i in data['range']:
     plot2d(data['R'], data['Z'], data['q'][i], u = data['u'][i], v = data['v'][i],
         cmap = 'Blues', clim = [0, 10], clabel = r'$Q_{crit.}$', 
         filename = os.path.join(data['path'], 'q', f'{i}.png'), 
+        title = titlehandle(i))
+
+    # plot Mach number
+    plot2d(data['R'], data['Z'], data['M'][i], u = data['u'][i], v = data['v'][i],
+        cmap = 'viridis', clim = [0, 1.5], clabel = r'$M$', 
+        filename = os.path.join(data['path'], 'M', f'{i}.png'), 
         title = titlehandle(i))
 #%% create archive
 shutil.make_archive(data['path'], 'zip', data['path'])

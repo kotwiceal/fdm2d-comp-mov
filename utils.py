@@ -96,7 +96,7 @@ def plotmkdir(path):
         os.makedirs(path)
     except:
         pass
-    folders = ['u', 'v', 'vmag', 'rho', 'eint', 'rot', 'q', 'ent']
+    folders = ['u', 'v', 'vmag', 'rho', 'eint', 'rot', 'q', 'ent', 'M']
     shutil.rmtree(path)
     os.makedirs(path)
     [os.makedirs(os.path.join(path, f)) for f in folders]
